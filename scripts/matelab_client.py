@@ -572,9 +572,16 @@ class _NeedRefresh(Exception):
 
 def make_ref_name(prefix: str, index: int, file_path: str | os.PathLike,
                   limit: int = MAX_REF_LEN) -> str:
-    """生成上传引用名：{prefix}_{序号:02d}_{hash6}，总长 ≤45。"""
+    """生成上传引用名：{prefix}_{序号:02d}_{hash6}，总长 ≤45。
+
+    文件不存在时也能生成（预览/示例场景），size 记为 0。
+    """
     path = Path(file_path)
-    h = hashlib.sha256(f"{path.name}:{path.stat().st_size}".encode("utf-8")).hexdigest()[:6]
+    try:
+        size = path.stat().st_size
+    except OSError:
+        size = 0
+    h = hashlib.sha256(f"{path.name}:{size}".encode("utf-8")).hexdigest()[:6]
     safe_prefix = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in prefix)
     suffix = f"_{index:02d}_{h}"
     room = limit - len(suffix)
