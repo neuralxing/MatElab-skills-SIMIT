@@ -81,6 +81,21 @@ def non_empty_fields(client: MatElabClient, eln: str, title: str,
     return keep
 
 
+def leading_empty_rows(arrays: Dict[str, List[Any]], columns: List[str]) -> List[int]:
+    """删除开头连续的空行（模板留的空白网格），遇到第一条非空行即停。"""
+    length = max((len(arrays.get(col) or []) for col in columns), default=0)
+    hits: List[int] = []
+    for index in range(length):
+        values = [arrays.get(col) or [] for col in columns]
+        cells = [values[i][index] if index < len(values[i]) else None
+                 for i in range(len(columns))]
+        if all(cell in (None, "", []) for cell in cells):
+            hits.append(index)
+        else:
+            break
+    return hits
+
+
 def _cell_eq(actual: Any, expected: Any) -> bool:
     if expected is None:
         return actual in (None, "")
@@ -151,7 +166,7 @@ def apply_cleanup(client: MatElabClient, cfg: Dict[str, Any], sn: str, title: st
         module = rule["module"]
         marker = rule.get("marker_column")
         value_column = rule.get("value_column", "Materials")
-        expected_mode = bool(rule.get("expected_rows"))
+        expected_mode = bool(rule.get("expected_rows")) or bool(rule.get("drop_leading_empty"))
         if expected_mode:
             columns = list(rule.get("columns") or [])
             value_column = columns[0] if columns else value_column
@@ -166,7 +181,12 @@ def apply_cleanup(client: MatElabClient, cfg: Dict[str, Any], sn: str, title: st
             if verbose:
                 print(f"[clean] {module}: 记录里没有该表格，跳过")
             continue
-        hits = leading_rows_to_delete(arrays, rule) if expected_mode else plan_row_deletes(arrays, rule)
+        if rule.get("drop_leading_empty"):
+            hits = leading_empty_rows(arrays, columns)
+        elif rule.get("expected_rows"):
+            hits = leading_rows_to_delete(arrays, rule)
+        else:
+            hits = plan_row_deletes(arrays, rule)
         if not hits:
             if verbose:
                 print(f"[clean] {module}: 未发现模板示例行")
