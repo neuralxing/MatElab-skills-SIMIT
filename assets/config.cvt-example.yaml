@@ -1,0 +1,193 @@
+# MatElab 上传配置：CVT 模板（CVT method simit）
+# 与 matelab.yaml 的区别：实验条件字段、两个温区表（Source zone / Deposition zone）、
+# 附件多两类（PPMS / 单晶结构），且没有 Upload information 模块。
+
+base_url: "https://eln.iphy.ac.cn:61262"
+
+eln_name: "晶体生长记录"
+template_name: "CVT method simit"
+
+eln_owner: null
+template_user: null
+
+uid_prefix: ""
+credential_env:
+  username: "eln_username"
+  password: "eln_password"
+
+token_dir: ".matelab"
+
+attachment_roots:
+  - "实验记录"
+  - "."
+
+no_proxy:
+  - "eln.iphy.ac.cn"
+  - "matelab.iphy.ac.cn"
+
+chunk_size: 8388608
+timeout: 60
+record_path: []
+
+dedupe_by_uid_field: false
+dedupe_field: null
+uid_in_keywords: true
+
+# 该模板建立时是空白模板，若模板作者留了默认值，同样按这里清空
+clear_inherited:
+  enabled: true
+  fields:
+    - { module: "Experiment condition", field: "Crucible" }
+    - { module: "Experiment condition", field: "Atmosphere condition" }
+    - { module: "Experiment condition", field: "End temperature" }
+    - { module: "Start materials", field: "Materials Form" }
+    - { module: "Experiment result", field: "Product" }
+
+# 表格示例行：模板若预填了示例，导入后会追加，需要删。
+# CVT 模板没有 Actual mass 标记列，这里按「从头逐行匹配」的方式判定。
+clear_rows:
+  enabled: true
+  rules:
+    - module: "Source zone"
+      columns: ["Temperature (℃)", "Time (h)", "Total time (h)"]
+      expected_rows:
+        - [1, 1, 1]
+    - module: "Deposition zone"
+      columns: ["Temperature (℃)", "Time (h)", "Total time (h)"]
+      expected_rows:
+        - [1, 1, 1]
+
+field_map:
+
+  # ================= Experimental scheme =================
+  _derived.sample_no:
+    module: "Experimental scheme"
+    field: "Sample No."
+    type: number
+  _derived.start_date:
+    module: "Experimental scheme"
+    field: "Start date"
+    type: date
+  _derived.finish_date:
+    module: "Experimental scheme"
+    field: "Finish date"
+    type: date
+  target:
+    module: "Experimental scheme"
+    field: "Target product"
+    type: text
+  _derived.method:
+    module: "Experimental scheme"
+    field: "Method"
+    kind: list
+  growth.transport_agent:
+    module: "Experimental scheme"
+    field: "Transport agent"
+    type: text
+
+  # ================= Experiment condition =================
+  # 注意：Crucible / Atmosphere condition / End temperature 是模板自带的下拉字段，
+  # 值必须在模板备选项内（与 Flux 模板同源）。选项未确认前不写，原值自动并入 Note。
+  growth.inner_diameter_mm:
+    module: "Experiment condition"
+    field: "Inner diameter (mm)"
+    type: number
+  growth.crucible_length_mm:
+    module: "Experiment condition"
+    field: "Length (mm)"
+    type: number
+  growth.grind:
+    module: "Experiment condition"
+    field: "Grind"
+    type: bool
+  growth.press_pellet:
+    module: "Experiment condition"
+    field: "Press into pellet"
+    type: bool
+  growth.temp_zones:
+    module: "Experiment condition"
+    field: "The number of temperature zone"
+    type: integer
+  growth.furnace_no:
+    module: "Experiment condition"
+    field: "Furnace number"
+    type: text
+
+  # ================= Start materials =================
+  _derived.precursors:
+    kind: table
+    module: "Start materials"
+    columns:
+      materials: "Materials"
+      ratio: "Molar ratios"
+      molar_mass: "Molar mass（g/mol）"
+      mass: "Actual mass（g）"
+    drop_empty_columns: true
+
+  # ================= 两个温区 =================
+  _derived.source_heating:
+    kind: table
+    module: "Source zone"
+    columns:
+      temperature: "Temperature (℃)"
+      time: "Time (h)"
+      total: "Total time (h)"
+    column_types:
+      temperature: number
+      time: number
+      total: number
+  _derived.deposition_heating:
+    kind: table
+    module: "Deposition zone"
+    columns:
+      temperature: "Temperature (℃)"
+      time: "Time (h)"
+      total: "Total time (h)"
+    column_types:
+      temperature: number
+      time: number
+      total: number
+
+  # ================= Note =================
+  _derived.note:
+    kind: richtext
+    module: "Note"
+
+  # ================= Experiment result =================
+  _derived.xrd_result:
+    module: "Experiment result"
+    field: "XRD result"
+    type: text
+  _derived.eds_result:
+    module: "Experiment result"
+    field: "EDS result"
+    type: text
+  attachments_photos:
+    module: "Experiment result"
+    field: "Photos"
+    kind: filelist
+    filter: ["photo"]
+  attachments_xrd:
+    module: "Experiment result"
+    field: "XRD measurements"
+    kind: filelist
+    filter: ["xrd"]
+  attachments_eds:
+    module: "Experiment result"
+    field: "EDS measurements"
+    kind: filelist
+    filter: ["eds", "other"]
+  attachments_ppms:
+    module: "Experiment result"
+    field: "PPMS measurements"
+    kind: filelist
+    filter: ["ppms"]
+  attachments_structure:
+    module: "Experiment result"
+    field: "Single crystal structure measurements"
+    kind: filelist
+    filter: ["sc"]
+  _derived.is_target:
+    module: "Experiment result"
+    field: "Target pruduct or not"
+    type: bool

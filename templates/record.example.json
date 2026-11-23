@@ -1,0 +1,93 @@
+{
+  "uid": "XY101-20260924-01",
+  "title": "XY101 BiSiTe3 flux growth 2026-09-24",
+  "sample_id": "XY101",
+  "sample_no": 101,
+  "formula": "BiSiTe3",
+  "exp_type": "Flux method",
+  "date": "2026-09-24",
+  "start_date": "2026-09-24",
+  "finish_date": "2026-09-30",
+  "operator": "",
+  "project": "压电材料",
+  "target": "BiSiTe3 single crystal",
+  "keywords": ["BiSiTe3", "flux", "XRD", "EDS"],
+  "path": [],
+  "growth": {
+    "method": "Flux method",
+    "flux": "Te self-flux (Bi:Si:Te = 1:1:8)",
+    "crucible": "Al2O3 5 ml",
+    "inner_diameter_mm": 15,
+    "crucible_length_mm": 40,
+    "atmosphere": "Vacuum sealed quartz",
+    "vacuum_torr": "1e-4",
+    "t_max": 625,
+    "hold_h": 14,
+    "cool_rate": 5,
+    "end_temp": 450,
+    "separation": "离心",
+    "centrifugation": true,
+    "quartz_seal": true,
+    "tantalum_seal": false,
+    "anneal": false,
+    "furnace_no": "Tube furnace #2",
+    "yield_pct": null
+  },
+  "heating": [
+    { "temperature": 30, "time": 0, "total": 0 },
+    { "temperature": 625, "time": 8, "total": 0 },
+    { "temperature": 625, "time": 14, "total": 8 },
+    { "temperature": 450, "time": 35, "total": 22 },
+    { "temperature": 450, "time": null, "total": null }
+  ],
+  "precursors": [
+    { "name": "Bi", "purity": "99.999%", "ratio": 1, "molar_mass": 208.98, "mass_g": 0.209, "form": "shot" },
+    { "name": "Si", "purity": "99.999%", "ratio": 1, "molar_mass": 28.09, "mass_g": 0.028, "form": "lump" },
+    { "name": "Te", "purity": "99.999%", "ratio": 8, "molar_mass": 127.6, "mass_g": 1.021, "form": "shot" }
+  ],
+  "xrd": {
+    "phases": "BiSiTe3",
+    "space_group": "",
+    "lattice": "",
+    "conclusion": "Powder XRD 主相为 BiSiTe3，未见明显杂相。"
+  },
+  "eds_rows": [
+    { "element": "Bi", "line": "", "wt": 33.99, "at": 20.24, "note": "Spectrum 276" },
+    { "element": "Si", "line": "", "wt": 4.46, "at": 19.74, "note": "Spectrum 276" },
+    { "element": "Te", "line": "", "wt": 61.56, "at": 60.03, "note": "Spectrum 276" }
+  ],
+  "transport": {
+    "property": "",
+    "temp_range": "",
+    "resistivity": "",
+    "carrier_type": "",
+    "carrier_conc": "",
+    "mobility": "",
+    "conclusion": ""
+  },
+  "magnetism": {
+    "measurement": "",
+    "temp_range": "",
+    "moment": "",
+    "t_transition": null,
+    "conclusion": ""
+  },
+  "is_target_product": true,
+  "materials_galaxy": {
+    "id": "",
+    "link": ""
+  },
+  "narrative": {
+    "summary": "按照模型预测配方，以 Te 为自助熔剂合成 BiSiTe3 单晶。",
+    "process": "手套箱中按 Bi:Si:Te = 1:1:8 混料，装入 5 ml Al2O3 坩埚，石英管抽真空至 1e-4 Torr 封管。625 ℃ 保温 14 h，以 5 ℃/h 降至 450 ℃，取出倒置离心分离助熔剂。",
+    "observations": "得到大量黑色片状晶体，未见红色晶体；离心较干净。",
+    "conclusion": "产物为黑色片状 BiSiTe3 单晶，EDS 成分与化学计量基本一致（Te 略偏高）。"
+  },
+  "attachments": [
+    { "path": "实验记录/20260910_XY_BiSITe_2026-09-24_10-57-09.docx", "text": "EDS 原始报告", "kind": "eds" },
+    { "path": "实验记录/xy101-bst.jpeg", "text": "样品照片 1", "kind": "photo" },
+    { "path": "实验记录/xy101-bst(1).jpeg", "text": "样品照片 2", "kind": "photo" },
+    { "path": "实验记录/XY101-BiSiTe-1.gk", "text": "单晶样品称量记录", "kind": "other" },
+    { "path": "实验记录/XY101-BiSiTe-powder.gk", "text": "粉末样品称量记录", "kind": "other" }
+  ]
+}

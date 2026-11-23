@@ -1,0 +1,68 @@
+{
+  "uid": "CVT001-20261120-01",
+  "title": "CVT001 CrGeTe3 CVT growth 2026-11-20",
+  "sample_id": "CVT001",
+  "sample_no": 1,
+  "formula": "CrGeTe3",
+  "exp_type": "CVT",
+  "date": "2026-11-20",
+  "start_date": "2026-11-20",
+  "finish_date": "2026-11-27",
+  "operator": "",
+  "project": "CVT 单晶生长",
+  "target": "CrGeTe3 single crystal",
+  "keywords": ["CrGeTe3", "CVT", "I2"],
+  "path": [],
+  "growth": {
+    "method": "CVT",
+    "transport_agent": "I2, 5 mg/cm3",
+    "crucible": "Quartz ampoule",
+    "inner_diameter_mm": 10,
+    "crucible_length_mm": 100,
+    "atmosphere": "Vacuum",
+    "grind": true,
+    "press_pellet": true,
+    "temp_zones": 2,
+    "furnace_no": "J21",
+    "end_temp": 25
+  },
+  "source_heating": [
+    { "temperature": 25, "time": 0, "total": 0 },
+    { "temperature": 900, "time": 8, "total": 0 },
+    { "temperature": 900, "time": 168, "total": 8 },
+    { "temperature": 900, "time": null, "total": null }
+  ],
+  "deposition_heating": [
+    { "temperature": 25, "time": 0, "total": 0 },
+    { "temperature": 800, "time": 8, "total": 0 },
+    { "temperature": 800, "time": 168, "total": 8 },
+    { "temperature": 800, "time": null, "total": null }
+  ],
+  "precursors": [
+    { "name": "Cr", "purity": "99.99%", "ratio": 1, "molar_mass": 51.996, "mass_g": 0.104 },
+    { "name": "Ge", "purity": "99.999%", "ratio": 1, "molar_mass": 72.63, "mass_g": 0.145 },
+    { "name": "Te", "purity": "99.999%", "ratio": 3, "molar_mass": 127.6, "mass_g": 0.766 }
+  ],
+  "xrd": {
+    "phases": "CrGeTe3",
+    "conclusion": "粉末 XRD 主相 CrGeTe3，少量 Te 杂相。"
+  },
+  "eds_rows": [
+    { "element": "Cr", "wt": 12.5, "at": 16.4, "note": "Spectrum 1" },
+    { "element": "Ge", "wt": 17.6, "at": 16.5, "note": "Spectrum 1" },
+    { "element": "Te", "wt": 69.9, "at": 67.1, "note": "Spectrum 1" }
+  ],
+  "transport": { "property": "电阻率", "temp_range": "2-300 K", "resistivity": "1.2e-3 Ω·cm @300K" },
+  "magnetism": { "measurement": "M-T", "temp_range": "2-300 K", "t_transition": 61, "conclusion": "Tc ≈ 61 K" },
+  "is_target_product": true,
+  "narrative": {
+    "summary": "以 I2 为输运剂，CVT 法生长 CrGeTe3 单晶。",
+    "process": "按 Cr:Ge:Te = 1:1:3 混料、压片，石英管抽真空封管（I2 5 mg/cm3），源区 900 ℃、沉积区 800 ℃，生长 168 h。",
+    "observations": "沉积区得到黑色六角片状晶体，尺寸约 2-3 mm。",
+    "conclusion": "XRD 主相 CrGeTe3，EDS 成分接近化学计量；PPMS 显示 Tc ≈ 61 K。"
+  },
+  "attachments": [
+    { "path": "实验记录/CrGaTe3生长/BP-144/EDS/20260910_bp-144-1_2026-09-24_11-07-02.docx", "text": "示例 EDS（占位）", "kind": "eds" },
+    { "path": "实验记录/CrGaTe3生长/BP-144/XRD/2026.9.22bp-144CrGaTe3-5-90-0.02-1.gk", "text": "示例 XRD（占位）", "kind": "xrd" }
+  ]
+}

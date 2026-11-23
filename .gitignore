@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 运行时产物
+.matelab/
+_payload.json
+*.log
+
+# 本地配置（含记录本/模板名、服务器地址，不入库）
+matelab.yaml
+matelab_cvt.yaml
+
+# 实验原始资料
+实验记录/
+*.docx
+*.xlsx
+*.gk
+*.dat
+*.xy
+
+# 编辑器
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
