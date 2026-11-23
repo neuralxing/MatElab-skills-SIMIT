@@ -42,13 +42,14 @@
    setx eln_password "你的密码"
    ```
 
-2. 复制配置到项目根：
+2. 复制配置到项目根（仓库根的示例已内置 `no_proxy` 内网域名）：
 
    ```bat
-   cmd /c copy "<SKILL>\assets\config.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
+   cmd /c copy "<SKILL>\matelab.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
    ```
 
    按实际改 `eln_name`（记录本）、`template_name`（模板）、`attachment_roots`（附件搜索目录）。
+   `matelab.yaml` 被 `.gitignore` 排除（每人的记录本与附件目录不同），所以仓库只放示例。
 
 3. 模板准备（三选一）：
 
@@ -96,8 +97,9 @@ cmd /c python -X utf8 "<SKILL>\scripts\upload_record.py" --record "record.json" 
 matelab-experiment-log/
 ├── SKILL.md                        # agent 入口：工作流、排错表、红线
 ├── README.md
+├── matelab.example.yaml            # Flux 配置示例（复制为 matelab.yaml）
 ├── assets/
-│   ├── config.example.yaml         # Flux 模板配置（含 field_map）
+│   ├── config.example.yaml         # 兼容副本（同根目录示例）
 │   └── config.cvt-example.yaml     # CVT 模板配置
 ├── references/
 │   ├── api.md                      # 接口细节与错误码

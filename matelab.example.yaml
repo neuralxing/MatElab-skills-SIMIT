@@ -1,0 +1,234 @@
+# MatElab 实验记录上传配置（Flux 模板）
+# 用法：复制到你自己的项目根，并改名为 matelab.yaml，再按实际修改：
+#   cmd /c copy "<SKILL>\matelab.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
+# 注意：matelab.yaml 已被 .gitignore 排除（每人的记录本/附件目录不同），
+#       因此仓库只放这份示例；no_proxy 已内置内网域名。
+# 账号密码只从环境变量读取，不要写在这里。
+#
+# 本配置对应实验室现有模板「Flux method simit」（模块名/字段名全部为英文，
+# 取自模板「查看模板导入格式」的 JSON，大小写与括号必须完全一致）。
+
+base_url: "https://eln.iphy.ac.cn:61262"
+
+# 目标记录本（网页上已建好）
+eln_name: "晶体生长记录"
+
+# 模板名（必须与网页显示完全一致）
+template_name: "Flux method simit"
+
+# 记录本/模板属于他人时才填（本人留空）
+eln_owner: null
+template_user: null
+
+# 记录 uid 前缀，留空则用样品编号
+uid_prefix: ""
+
+# 凭据环境变量名
+credential_env:
+  username: "eln_username"
+  password: "eln_password"
+
+# token 缓存目录（相对项目根）
+token_dir: ".matelab"
+
+# 附件搜索根目录：相对路径按项目根解析，找不到再按文件名模糊匹配
+attachment_roots:
+  - "实验记录"
+  - "."
+
+# 内网域名不走代理
+no_proxy:
+  - "eln.iphy.ac.cn"
+  - "matelab.iphy.ac.cn"
+
+# 上传分片大小（字节），服务端单片上限 20MB
+chunk_size: 8388608
+
+# 超时（秒）
+timeout: 60
+
+# 记录分类路径（可选，写入 dataset.path）
+record_path: []
+
+# ---- 幂等 ----
+# 该模板没有「记录UID」字段，因此 uid 写进 dataset.keyword，查重按关键词检索。
+dedupe_by_uid_field: false
+dedupe_field: null
+uid_in_keywords: true
+
+# ---- 清理模板预填值 ----
+# 该模板自带一些默认数据（Alumina / Vacuum / Nature cooling / Ball·Ball·Powder /
+# Single crystals / SCG00000165 等），新建记录会原样继承。导入成功后调用
+# /eln_api/update 的 del 把这些字段清空，保证记录里只有我们真实写入的数据。
+# 信息本身已写进 Note，不会丢失。想保留模板默认值时把 enabled 改成 false。
+clear_inherited:
+  enabled: true
+  fields:
+    - { module: "Experiment condition", field: "Crucible" }
+    - { module: "Experiment condition", field: "Atmosphere condition" }
+    - { module: "Experiment condition", field: "End temperature" }
+    - { module: "Start materials", field: "Materials Form" }
+    - { module: "Experiment result", field: "Product" }
+    - { module: "Upload information", field: "Materials Galaxy id" }
+
+# 模板预填的**表格示例行**（导入是追加行，不会覆盖，必须显式删）
+# marker_column 非空的行 = 模板示例行；我们的数据从不写这一列，所以不会误删。
+clear_rows:
+  enabled: true
+  rules:
+    - module: "Start materials"
+      marker_column: "Actual mass"
+      value_column: "Materials"
+      expect_values: ["Cr", "Ge", "Te"]
+    # Heating time 的示例行没有标记列，按「从头逐行的预期值」比对，匹配即删
+    - module: "Heating time"
+      columns: ["Temperature (℃)", "Time (h)", "Total time (h)"]
+      # Time 列在模板里既有 9999 也有 999 的版本，故只比温度和累计时间
+      compare_columns: ["Temperature (℃)", "Total time (h)"]
+      expected_rows:
+        - [30, 10, 0]
+        - [930, 12, 10]
+        - [930, 110, 22]
+        - [600, 9999, 132]
+        - [600, null, null]
+
+# ---------------------------------------------------------------------------
+# 字段映射：canonical key -> 模板中的模块名 / 字段名
+#   module    模板里的模块名称（必须完全一致）
+#   field     表单字段名（form / filelist 必填）
+#   kind      form（默认）/ list / table / fileset / filelist / richtext
+#   type      text / number / integer / date / time / bool / cascade
+#   filter    filelist 专用：按附件 kind 过滤（photo / xrd / eds / other）
+#   columns   table 专用：canonical 列 -> 模板列名
+#   column_types  table 专用：哪些列是数字
+#   _derived.*    由 build_record.py 自动派生的值（见 references/field-mapping.md）
+# ---------------------------------------------------------------------------
+field_map:
+
+  # ================= Experimental scheme =================
+  _derived.sample_no:
+    module: "Experimental scheme"
+    field: "Sample No."
+    type: number
+  _derived.start_date:
+    module: "Experimental scheme"
+    field: "Start date"
+    type: date
+  _derived.finish_date:
+    module: "Experimental scheme"
+    field: "Finish date"
+    type: date
+  target:
+    module: "Experimental scheme"
+    field: "Target product"
+    type: text
+  _derived.method:
+    module: "Experimental scheme"
+    field: "Method"
+    kind: list
+  growth.flux:
+    module: "Experimental scheme"
+    field: "Select flux"
+    type: text
+
+  # ================= Experiment condition =================
+  # 注意：Crucible / Atmosphere condition / End temperature 在模板里是「下拉选择」，
+  # 值必须在模板备选项中，未取得选项清单前不写（相关信息自动并入 Note）。
+  growth.inner_diameter_mm:
+    module: "Experiment condition"
+    field: "Inner diameter (mm)"
+    type: number
+  growth.crucible_length_mm:
+    module: "Experiment condition"
+    field: "Length (mm)"
+    type: number
+  _derived.tantalum_seal:
+    module: "Experiment condition"
+    field: "Tantalum seal"
+    type: bool
+  _derived.quartz_seal:
+    module: "Experiment condition"
+    field: "Quartz seal"
+    type: bool
+  growth.furnace_no:
+    module: "Experiment condition"
+    field: "Furnace number"
+    type: text
+  _derived.centrifugation:
+    module: "Experiment condition"
+    field: "Centrifugation"
+    type: bool
+  _derived.anneal:
+    module: "Experiment condition"
+    field: "Anneal"
+    type: bool
+
+  # ================= Start materials（表格） =================
+  # 模板列全部是文本，纯度并入"Materials"显示，形如 Bi (99.999%)
+  _derived.precursors:
+    kind: table
+    module: "Start materials"
+    columns:
+      materials: "Materials"
+      ratio: "Molar ratios"
+      molar_mass: "Molar mass（g/mol）"
+      mass: "Actual mass（g）"
+    drop_empty_columns: true
+
+  # ================= Heating time（表格，数字列） =================
+  _derived.heating:
+    kind: table
+    module: "Heating time"
+    columns:
+      temperature: "Temperature (℃)"
+      time: "Time (h)"
+      total: "Total time (h)"
+    column_types:
+      temperature: number
+      time: number
+      total: number
+    drop_empty_columns: true
+
+  # ================= Note（图文混排） =================
+  _derived.note:
+    kind: richtext
+    module: "Note"
+
+  # ================= Experiment result =================
+  _derived.xrd_result:
+    module: "Experiment result"
+    field: "XRD result"
+    type: text
+  _derived.eds_result:
+    module: "Experiment result"
+    field: "EDS result"
+    type: text
+  attachments_photos:
+    module: "Experiment result"
+    field: "Photos"
+    kind: filelist
+    filter: ["photo"]
+  attachments_xrd:
+    module: "Experiment result"
+    field: "XRD measurements"
+    kind: filelist
+    filter: ["xrd"]
+  attachments_eds:
+    module: "Experiment result"
+    field: "EDS measurements"
+    kind: filelist
+    filter: ["eds", "other"]
+  _derived.is_target:
+    module: "Experiment result"
+    field: "Target pruduct or not"     # 模板原拼写如此，勿改
+    type: bool
+
+  # ================= Upload information =================
+  _derived.mg_id:
+    module: "Upload information"
+    field: "Materials Galaxy id"
+    type: text
+  _derived.mg_link:
+    module: "Upload information"
+    field: "Materials Galaxy link"
+    type: text

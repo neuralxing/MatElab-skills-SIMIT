@@ -1,6 +1,6 @@
-# MatElab 实验记录上传配置（Flux 模板）
-# 复制到项目根为 matelab.yaml 后按实际修改：
-#   cmd /c copy "<SKILL>\assets\config.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
+# 兼容副本：正式示例已移到仓库根目录 matelab.example.yaml
+# 两者内容一致，新文档请使用根目录那份：
+#   cmd /c copy "<SKILL>\matelab.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
 # 账号密码只从环境变量读取，不要写在这里。
 #
 # 本配置对应实验室现有模板「Flux method simit」（模块名/字段名全部为英文，

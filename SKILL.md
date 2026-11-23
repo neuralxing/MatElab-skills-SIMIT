@@ -23,7 +23,7 @@ metadata:
 2. **配置**：项目根放一份 `matelab.yaml`（或 `matelab_cvt.yaml`）：
 
    ```bat
-   cmd /c copy "<SKILL>\assets\config.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
+   cmd /c copy "<SKILL>\matelab.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
    ```
 
 3. **记录本**：MatElab 网页上已建好（`eln_name` 与网页显示完全一致）。
