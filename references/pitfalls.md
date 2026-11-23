@@ -162,3 +162,28 @@ python -X utf8 clean_record.py --config matelab.yaml --uid BP-144-20260916-01 --
 或删行时返回 `path 1 指定的行不存在`，说明存储里根本没这些行（search 里看到的是会话/模板合成的视图）。
 
 处理：让用户在网页上关闭（或保存）该记录，再重跑 `clean_record.py`。
+
+## 19. Note 不是独立模块，而是 Experiment result 里的 richtext 字段
+
+「查看模板导入格式」的 JSON 里 `Note` 看起来像独立模块（`"Note": "文本"`），但实际记录结构中
+它是 **`Experiment result` 模块里的一个 richtext 字段**（同模块还有 Photos / XRD result / EDS result 等）。
+
+后果：如果按 `module: "Note"` 写入，导入**不会报错**，但内容被静默丢弃，记录里仍显示模板预填的默认文字
+（例如「失败，生长出GeTe2单晶」）。
+
+正确配置：
+
+```yaml
+_derived.note:
+  module: "Experiment result"
+  field: "Note"
+  type: html
+```
+
+对已写入的记录补写：
+
+```bat
+python -X utf8 clean_record.py --config matelab.yaml --sync-note --record record.json --yes
+```
+
+模板里的默认文字无法用 API 删除，只能模板作者在网页编辑模板时清空。

@@ -21,7 +21,7 @@
 | | | End temperature（文本列表） | 终止温度 |
 | **Start materials** | 表格 | Materials / Molar ratios / Molar mass（g/mol） / Actual mass（g） / Materials Form | **全部文本**；另有重复列 `Actual mass` 未使用 |
 | **Heating time** | 表格 | Temperature (℃) / Time (h) / Total time (h) | **全为数字** |
-| **Note** | 图文混排 | — | 摘要、过程、现象、电学/磁性结论都放这里 |
+| **Note** | *（不是独立模块）* | — | 实际是 `Experiment result` 内的 richtext 字段；摘要、过程、现象、电学/磁性结论都写这个字段 |
 | **Experiment result** | 表单 | Product（文本列表） | 产物 |
 | | | Photos / XRD measurements / EDS measurements（**文件**） | 三组附件 |
 | | | XRD result / EDS result（文本） | 结论文本 |
