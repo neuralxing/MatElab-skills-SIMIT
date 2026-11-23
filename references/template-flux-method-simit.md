@@ -61,6 +61,30 @@
 导入是**追加行**，所以新记录会变成 6 行。`clear_rows` 按「`Actual mass` 列非空」定位并倒序删行，
 只删示例行，不会碰我们写的 Cr/Ga/Te 行（这列我们留空）。
 
+## 二·六、2026-11 模板更新
+
+模板作者改版后新增/调整了这些字段（`matelab.example.yaml` 已同步）：
+
+| 模块 | 变更 |
+|---|---|
+| Experimental scheme | 新增 `Target  product MPID`（文本）、`Target  product CIF`（文件）；**两个字段名中间都是两个空格**，必须照抄 |
+| Start materials | 列改为 Materials / Molar ratios / Molar mass（g/mol）/ Actual mass（g）/ Materials Form（去掉了重复的 `Actual mass`） |
+| Experiment result | 新增 `PPMS measurements`、`Single crystal structure measurements`（文件） |
+| 表格 | 模板不再预填示例值，改为**空白网格行**（Start materials 3 行、Heating time 10 行），导入后会追加在空行之后 |
+
+对应配置：
+
+```yaml
+target_mpid: { module: "Experimental scheme", field: "Target  product MPID", type: text }
+target_cif:  { module: "Experimental scheme", field: "Target  product CIF", kind: filelist, filter: ["cif"] }
+clear_rows:
+  rules:
+    - { module: "Start materials", columns: [...], drop_leading_empty: true }
+    - { module: "Heating time",   columns: [...], drop_leading_empty: true }
+```
+
+`drop_leading_empty: true` 会删掉表格开头连续的空行，遇到第一条有数据的行即停。
+
 ## 三、探针结果（2026-11-23 实测）
 
 ```

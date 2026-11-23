@@ -1,6 +1,5 @@
-# 兼容副本：正式示例已移到仓库根目录 matelab.example.yaml
-# 两者内容一致，新文档请使用根目录那份：
-#   cmd /c copy "<SKILL>\matelab.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
+# 兼容副本：正式示例在仓库根 matelab.example.yaml（内容一致）
+# 用法：cmd /c copy "<SKILL>\matelab.example.yaml" "<PROJECT_ROOT>\matelab.yaml"
 # 账号密码只从环境变量读取，不要写在这里。
 #
 # 本配置对应实验室现有模板「Flux method simit」（模块名/字段名全部为英文，
@@ -75,7 +74,7 @@ clear_rows:
   enabled: true
   rules:
     - module: "Start materials"
-      marker_column: "Actual mass"
+      marker_column: "Materials Form"
       value_column: "Materials"
       expect_values: ["Cr", "Ge", "Te"]
     # Heating time 的示例行没有标记列，按「从头逐行的预期值」比对，匹配即删
@@ -89,6 +88,13 @@ clear_rows:
         - [930, 110, 22]
         - [600, 9999, 132]
         - [600, null, null]
+    # 新模板给的是空白网格行（不是示例值），删掉开头的空行
+    - module: "Start materials"
+      columns: ["Materials", "Molar ratios", "Actual mass（g）"]
+      drop_leading_empty: true
+    - module: "Heating time"
+      columns: ["Temperature (℃)", "Time (h)", "Total time (h)"]
+      drop_leading_empty: true
 
 # ---------------------------------------------------------------------------
 # 字段映射：canonical key -> 模板中的模块名 / 字段名
@@ -128,6 +134,16 @@ field_map:
     module: "Experimental scheme"
     field: "Select flux"
     type: text
+  # 模板 2026-11 更新新增（字段名里是两个空格，务必照抄）
+  target_mpid:
+    module: "Experimental scheme"
+    field: "Target  product MPID"
+    type: text
+  target_cif:
+    module: "Experimental scheme"
+    field: "Target  product CIF"
+    kind: filelist
+    filter: ["cif"]
 
   # ================= Experiment condition =================
   # 注意：Crucible / Atmosphere condition / End temperature 在模板里是「下拉选择」，
@@ -187,10 +203,12 @@ field_map:
       total: number
     drop_empty_columns: true
 
-  # ================= Note（图文混排） =================
+  # ================= Note（Experiment result 里的富文本字段） =================
+  # 注意：模板里 Note 不是独立模块，而是 Experiment result 模块里的 richtext 字段
   _derived.note:
-    kind: richtext
-    module: "Note"
+    module: "Experiment result"
+    field: "Note"
+    type: html
 
   # ================= Experiment result =================
   _derived.xrd_result:
@@ -216,6 +234,17 @@ field_map:
     field: "EDS measurements"
     kind: filelist
     filter: ["eds", "other"]
+  # 模板 2026-11 更新新增
+  attachments_ppms:
+    module: "Experiment result"
+    field: "PPMS measurements"
+    kind: filelist
+    filter: ["ppms"]
+  attachments_structure:
+    module: "Experiment result"
+    field: "Single crystal structure measurements"
+    kind: filelist
+    filter: ["sc"]
   _derived.is_target:
     module: "Experiment result"
     field: "Target pruduct or not"     # 模板原拼写如此，勿改
