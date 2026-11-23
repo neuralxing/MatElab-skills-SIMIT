@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from build_record import build  # noqa: E402
 from cleanup import apply_cleanup  # noqa: E402
 from matelab_client import MatElabClient, MatElabError, load_config  # noqa: E402
 
@@ -28,8 +29,55 @@ def snapshot(client: MatElabClient, cfg: Dict[str, Any], uid: str) -> Optional[D
     return None
 
 
+def sync_note(cfg: Dict[str, Any], record_paths: List[str]) -> int:
+    """把 record.json 里的 Note 重新写回记录，覆盖模板预填的默认文字。"""
+    spec = (cfg.get("field_map") or {}).get("_derived.note") or {}
+    module = spec.get("module")
+    field = spec.get("field") or "Note"
+    if not module:
+        print("field_map._derived.note 未配置，无法同步 Note", file=sys.stderr)
+        return 2
+
+    client = MatElabClient(cfg, verbose=True)
+    items = client.items(cfg["eln_name"], cfg.get("eln_owner"))
+    sn_by_uid = {str(i.get("sn")): i for i in items}
+
+    code = 0
+    for record_path in record_paths:
+        record = json.loads(Path(record_path).read_text(encoding="utf-8-sig"))
+        payload, issues = build(record, cfg, check_attachments=False)
+        if not issues.ok:
+            print(f"[note] {record_path} 映射有错，跳过", file=sys.stderr)
+            code = 2
+            continue
+        item = payload["dataset"][0]
+        note = (item["data"].get(module) or {}).get(field)
+        uid = item["uid"]
+        if not note:
+            print(f"[note] {uid}: record 里没有 Note 内容，跳过")
+            continue
+        if uid not in sn_by_uid:
+            print(f"[note] {uid}: 线上找不到该记录，跳过", file=sys.stderr)
+            code = 4
+            continue
+        client.update(cfg["eln_name"], uid, modify=[{"path": [module, field], "data": note}])
+        print(f"[note] {uid}: 已重写 {module}/{field}（{len(note)} 字符）")
+    return code
+
+
 def run(args: argparse.Namespace) -> int:
     cfg = load_config(args.config)
+
+    if args.sync_note:
+        if not args.record:
+            print("--sync-note 需要配合 --record 使用", file=sys.stderr)
+            return 2
+        if not args.yes:
+            print("[note] 将要重写以下记录的 Note（dry-run，加 --yes 执行）：")
+            for path in args.record:
+                print("  -", path)
+            return 0
+        return sync_note(cfg, list(args.record))
 
     uids: List[str] = list(args.uid or [])
     for record_path in args.record or []:
@@ -65,6 +113,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--config", required=True, help="matelab.yaml")
     parser.add_argument("--uid", action="append", help="记录 UID（sn），可重复")
     parser.add_argument("--record", action="append", help="record.json，可重复（读取其 uid）")
+    parser.add_argument("--sync-note", action="store_true",
+                        help="用 --record 里的 narrative 重写 Note 富文本字段")
     parser.add_argument("--yes", action="store_true", help="真正执行（默认 dry-run）")
     args = parser.parse_args(argv)
     try:

@@ -123,6 +123,9 @@ def to_cascade(value: Any, key: str, choices: List[str], issues: Issues) -> Opti
 
 def convert(value: Any, spec: Dict[str, Any], key: str, issues: Issues) -> Any:
     ftype = (spec.get("type") or "text").lower()
+    if ftype in ("html", "richtext"):
+        # 富文本字段：直接传 HTML 字符串，不做转义
+        return None if is_empty(value) else str(value)
     if ftype == "number":
         return to_number(value, key, issues)
     if ftype == "integer":
