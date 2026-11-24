@@ -396,6 +396,12 @@ class MatElabClient:
             payload["quote"] = quote
         return self.post_json("/eln_api/import", payload, where="import")
 
+    def export_records(self, eln: str, uids: List[str]) -> List[Dict[str, Any]]:
+        """按记录 UID 导出原始数据结构（含文件的 hash/size/filename）。"""
+        payload = {"uids": [{"eln": eln, "uid": uid} for uid in uids]}
+        data = self.post_json("/eln_api/export", payload, where="export")
+        return data.get("dataset") or []
+
     def create_empty(self, eln: str, title: str, *, user: Optional[str] = None,
                      path: Optional[List[str]] = None, uid: Optional[str] = None,
                      describe: Optional[str] = None) -> Dict[str, Any]:

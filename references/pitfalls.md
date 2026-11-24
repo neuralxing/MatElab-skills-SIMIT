@@ -187,3 +187,32 @@ python -X utf8 clean_record.py --config matelab.yaml --sync-note --record record
 ```
 
 模板里的默认文字无法用 API 删除，只能模板作者在网页编辑模板时清空。
+
+## 20. 表单里的多文件字段（Photos）无法用 API 追加
+
+实测（2026-11，记录 XY047 / 模板 CVT）：给 `Experiment result.Photos` 追加一张图，官方文档给的两条规则
+都会失败：
+
+| 尝试 | 返回 |
+|---|---|
+| `add` + `data: ["#file{x}"]` | `值应为字符串(add: 0)` |
+| `add` + `data: "#file{x}"` | `data 应为数组` |
+| `add` + `data: [{"file": "#file{x}", "text": "..."}]` | `值应为字符串(add: 0)` |
+| `add` + `name` 改用字段 uid | `data 应为数组` |
+| `add` + `data: ""` | `值应为字符串(add: 0)` |
+| `modify` `path: [模块, "Photos", 8]`（追加位） | `path 2 指定的项不存在` |
+| `modify` `path: [模块, "Photos", -1]` | `Server Error (code 3)` |
+
+结论：该版本对「表单里的 file 字段」的 `add` 校验有缺陷（字段明明存在却报 `data 应为数组`，
+换成数组又报 `值应为字符串`），**无法通过 API 追加**。
+
+可用的替代方案：
+
+1. **网页手工拖入**（最省事）：记录 → 对应模块 → 文件字段 → 拖文件；
+2. **重建记录**：`/eln_api/export` 导出原始数据（文件是 `{hash,size,filename}`），
+   把旧文件转成 `#hash{filename,sha256}` 引用 + 新文件 `#file{name}`，用 `/eln_api/import`
+   建一条新记录再删旧记录。代价是记录 ID 变化、历史丢失；
+3. 先只上传文件（`/eln_api/upload` 拿到 `#file{name}`），等接口修复后再挂到记录上。
+
+> `#hash{filename,sha256hex}` 只对「本人上传过 / 当前记录已有 / 有权限的其他记录本」的文件有效，
+> 拿不到 hash 时不要硬编。
