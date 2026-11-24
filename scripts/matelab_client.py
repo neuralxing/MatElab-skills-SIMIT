@@ -396,6 +396,18 @@ class MatElabClient:
             payload["quote"] = quote
         return self.post_json("/eln_api/import", payload, where="import")
 
+    def replace_file_field(self, eln: str, uid: str, module: str, field: str,
+                           refs: List[str]) -> Dict[str, Any]:
+        """重建表单里的文件字段（绕过 add 的校验 bug）。
+
+        先 del 掉整个字段，再用数组形式 add 回去；**原有文件会一起消失**，
+        因此 refs 必须包含全部要保留的文件（旧文件用 #hash{filename,sha256}）。
+        """
+        self.update(eln, uid, del_=[{"path": [module, field]}])
+        return self.update(eln, uid, add=[{
+            "module": module, "type": "file", "name": field, "data": list(refs),
+        }])
+
     def export_records(self, eln: str, uids: List[str]) -> List[Dict[str, Any]]:
         """按记录 UID 导出原始数据结构（含文件的 hash/size/filename）。"""
         payload = {"uids": [{"eln": eln, "uid": uid} for uid in uids]}
