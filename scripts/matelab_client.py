@@ -400,8 +400,9 @@ class MatElabClient:
                            refs: List[str]) -> Dict[str, Any]:
         """重建表单里的文件字段（绕过 add 的校验 bug）。
 
-        先 del 掉整个字段，再用数组形式 add 回去；**原有文件会一起消失**，
-        因此 refs 必须包含全部要保留的文件（旧文件用 #hash{filename,sha256}）。
+        ⚠️ 警告：先 del 会把字段里的文件**从存储删除**，之后 #hash 引用会失效
+        （实测 XY047：删后重建报「引用hash … 不存在」，下载 404）。
+        只有字段本来为空、或你有原始文件可重新 upload 时才安全。
         """
         self.update(eln, uid, del_=[{"path": [module, field]}])
         return self.update(eln, uid, add=[{

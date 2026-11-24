@@ -217,21 +217,26 @@ python -X utf8 clean_record.py --config matelab.yaml --sync-note --record record
 > `#hash{filename,sha256hex}` 只对「本人上传过 / 当前记录已有 / 有权限的其他记录本」的文件有效，
 > 拿不到 hash 时不要硬编。
 
-### 可行的绕过：先删字段、再重建（2026-11 实测成功）
+### 绕过：先删字段、再重建（**只在字段为空时安全**）
 
 ```python
 client.update(eln, uid, del_=[{"path": ["Experiment result", "Photos"]}])
 client.update(eln, uid, add=[{
     "module": "Experiment result", "type": "file", "name": "Photos",
-    "data": ["#file{new}", "#hash{old1.jpg,<sha256>}", ...],
+    "data": ["#file{new}"],
 }])
 ```
 
 原理：字段不存在时，`add` 会走「必须数组」那条分支，正好避开写反的校验。
-**注意这会丢掉字段里原有的文件**，所以 `refs` 要带全：旧文件用 `/eln_api/export` 拿到的
-`hash/size/filename` 转成 `#hash{filename,hash}`，新文件用 `#file{name}`。
 
-实测：XY074（Photos 原本 0 张）删字段后 add 数组，成功写入 1 张（317608 B）。
-XY047（原本 8 张）未做，因需先用 `#hash` 重建 8 个旧引用。
+- **空字段**：实测 XY074 成功（删后 add 数组，写入 1 张 317608 B）。
+- **非空字段**：**不要用**。XY047 实测（8 张）：`del` 后原文件被从存储删除，
+  再用 `#hash{filename,sha256}` 重建时报「引用hash … 不存在」，下载接口也返回
+  `File not found`——**原图不可恢复**，只能从本地重新上传。
+  这说明 `/eln_api/export` 里的 hash 只在文件仍被记录引用时有效，记录一删就失效。
 
-客户端已封装：`MatElabClient.replace_file_field(eln, uid, module, field, refs)`。
+结论：只有当字段本来为空、或你有原始文件可以重新 `/eln_api/upload` 时，才用这个绕过；
+否则老老实实在网页上拖文件。
+
+客户端封装 `MatElabClient.replace_file_field(eln, uid, module, field, refs)`
+同样有上述风险，`refs` 里的每个引用都必须能被服务端解析。
